@@ -12,5 +12,6 @@ class Provider(models.Model):
 
 class Block(models.Model):
     currency = models.ForeignKey(Currency, on_delete=models.CASCADE)
+    providers = models.ManyToManyField(Provider, related_name="blocks")
     created_at = models.DateTimeField(auto_now_add=True)
     stored_at = models.DateTimeField(auto_now_add=True)
