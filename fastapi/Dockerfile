@@ -9,5 +9,7 @@ WORKDIR /src
 RUN apt update \
     && apt install -y --no-install-recommends less
 
-RUN pip install poetry\
-    && poetry config virtualenvs.in-project true
+COPY requirements.txt ./
+RUN pip install --no-cache-dir -r requirements.txt
+
+COPY . .
