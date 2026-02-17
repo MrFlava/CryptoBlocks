@@ -18,7 +18,43 @@ services:
       - fastapi/fastapi.env
     links:
       - postgres
+      - redis
     command: ./scripts/runlocalserver.sh
+  redis:
+    container_name: fastapi-django-template-redis
+    image: redis:7-alpine
+    ports:
+      - 6379:6379
+  celery-worker:
+    container_name: fastapi-django-template-celery-worker
+    build: ./fastapi
+    volumes:
+      - ./fastapi:/src
+    links:
+      - redis
+      - postgres
+    command: celery -A app.workers.celery:app worker -l info
+    environment:
+      DB_NAME: fastapi-django-template
+      DB_USER: fastapi
+      DB_PASSWORD: fastapi
+      DB_HOST: postgres
+      DB_PORT: 5432
+  celery-beat:
+    container_name: fastapi-django-template-celery-beat
+    build: ./fastapi
+    volumes:
+      - ./fastapi:/src
+    links:
+      - redis
+      - postgres
+    command: celery -A app.workers.celery:app beat -l info
+    environment:
+      DB_NAME: fastapi-django-template
+      DB_USER: fastapi
+      DB_PASSWORD: fastapi
+      DB_HOST: postgres
+      DB_PORT: 5432
   postgres:
     container_name: fastapi-django-template-postgres
     image: postgres:12
